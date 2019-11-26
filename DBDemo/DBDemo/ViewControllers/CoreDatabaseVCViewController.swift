@@ -1,0 +1,211 @@
+//
+//  CoreDatabaseVCViewController.swift
+//  DBDemo
+//
+//  Created by Sandeep Parmar on 26/11/19.
+//  Copyright © 2019 Sandeep Parmar. All rights reserved.
+//
+
+import UIKit
+import CoreData
+
+class CoreDatabaseVCViewController: UIViewController ,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,ReachabilityManagerDelegate {
+    
+    @IBOutlet weak var segmentController : UISegmentedControl!
+    @IBOutlet weak var collectionView : UICollectionView!
+    
+    lazy var collectionViewFlowLayout : CustomCollectionViewFlowLayout = {
+        let layout = CustomCollectionViewFlowLayout(display: .list)
+        return layout
+    }()
+    
+    let dataSource = GalleryDataSource()
+    
+    let alert = UIAlertController(title: "IGA", message: "", preferredStyle: .alert)
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        ReachabilityManager.sharedInstance.networkDelegate = self
+        
+        self.collectionView.register(ImageGalleryCollectionViewCell.self, forCellWithReuseIdentifier: "ImageGalleryCollectionViewCell")
+        
+        self.collectionView.collectionViewLayout = self.collectionViewFlowLayout
+        self.collectionView.dataSource = self.dataSource
+        self.collectionView.delegate = self
+        self.fetchDataFromDB()
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        let objUpdate = self.dataSource.data.value[indexPath.row]
+        
+        self.updateRecordDB(objImage: objUpdate)
+    }
+    
+    func updateRecordDB(objImage:ImageGallery)  {
+        
+        let entity = NSEntityDescription.entity(forEntityName: "ImageGallery", in: CoreDataManager.sharedInstance.persistentContainer.viewContext)
+        let request = NSFetchRequest<NSFetchRequestResult>()
+        request.entity = entity
+        let predicate = NSPredicate(format: "(id = %@)", String(objImage.id))
+        request.predicate = predicate
+        do {
+            let results =
+                try CoreDataManager.sharedInstance.persistentContainer.viewContext.fetch(request)
+            let objectUpdate = results[0] as! NSManagedObject
+            objectUpdate.setValue("Sandy", forKey: "title")
+            
+            do {
+                try CoreDataManager.sharedInstance.persistentContainer.viewContext.save()
+                print ("Updated")
+            }catch let error as NSError {
+                print( error.localizedFailureReason as Any)
+            }
+        }
+        catch let error as NSError {
+            print(error.localizedFailureReason as Any)
+        }
+    }
+    func fetchDataFromDB() {
+        let request: NSFetchRequest<ImageGallery> = ImageGallery.fetchRequest()
+        
+        
+        do {
+            self.dataSource.data.value = try CoreDataManager.sharedInstance.persistentContainer.viewContext.fetch(request)
+            if self.dataSource.data.value.count == 0 {
+                SPIndicatorView.sharedInstance.showActivityIndicator(uiView: self.view)
+                self.getAllImageGallary()
+            }
+            else{
+                
+                DispatchQueue.main.async {
+                    self.dataSource.data.addAndNotify(observer: self) { [weak self] in
+                        self?.collectionView.reloadData()
+                    }
+                }
+            }
+        } catch {
+            print("Fetch failed")
+            DispatchQueue.main.async {
+                self.showAlertMessage(message: "Fetch failed")
+            }
+            
+        }
+    }
+    func getAllImageGallary() {
+        
+        guard let url = URL(string: "\(APIConstants.baseAPI)") else { return }
+        
+        APIManager.sharedInstance.apiRequest(toURL: url, withHttpMethod: .GET) { (results) in
+            
+            guard let response = results.response else { return }
+            if response.httpStatusCode == 200 {
+                guard let data = results.data else { return }
+                
+                do {
+                    let imageGallary =  try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as! NSArray
+                    DispatchQueue.main.async {
+                        self.save(gallaryImages: imageGallary)
+                    }
+                    
+                } catch {
+                    DispatchQueue.main.async {
+                        SPIndicatorView.sharedInstance.hideActivityIndicator(uiView: self.view)
+                        self.showAlertMessage(message: "Something went wrong with plugin api")
+                    }
+                }
+            }
+            else  if response.httpStatusCode == 0 {
+                DispatchQueue.main.async {
+                    SPIndicatorView.sharedInstance.hideActivityIndicator(uiView: self.view)
+                    self.showAlertMessage(message: "The Internet connection appears to be offline.")
+                }
+            }
+            else{
+                DispatchQueue.main.async {
+                    SPIndicatorView.sharedInstance.hideActivityIndicator(uiView: self.view)
+                    self.showAlertMessage(message: "Something went wrong with plugin api")
+                }
+            }
+        }
+    }
+    
+    func save(gallaryImages:NSArray)
+    {
+        let managedContext = CoreDataManager.sharedInstance.persistentContainer.viewContext
+        //Data is in this case the name of the entity
+        
+        for itemDict in gallaryImages {
+            
+            let dict = itemDict as! NSDictionary
+            
+            let imageGalleryObj = NSEntityDescription.insertNewObject(forEntityName: "ImageGallery", into: managedContext) as! ImageGallery
+            
+            imageGalleryObj.albumId = dict.object(forKey: "albumId") as! Int64
+            imageGalleryObj.id = dict.object(forKey: "id") as! Int64
+            imageGalleryObj.title = (dict.object(forKey: "title") as! String)
+            imageGalleryObj.url = (dict.object(forKey: "url") as! String)
+            imageGalleryObj.thumbnailUrl = (dict.object(forKey: "thumbnailUrl") as! String)
+        }
+        
+        do {
+            try managedContext.save()
+            self.fetchDataFromDB()
+        } catch {
+            
+        }
+        
+        DispatchQueue.main.async {
+            SPIndicatorView.sharedInstance.hideActivityIndicator(uiView: self.view)
+        }
+    }
+    
+    
+    @IBAction func layoutValueChanged(_ sender: UISegmentedControl) {
+        
+        switch sender.selectedSegmentIndex {
+        case 0:
+            self.collectionViewFlowLayout.display = .list
+        case 1:
+            self.collectionViewFlowLayout.display = .grid
+        default:
+            break
+        }
+    }
+    func networkStatusManager(status: NetworkType) {
+        
+        switch status {
+            
+        case .offline:
+            print("offline")
+        case .wifi:
+            print("wifi")
+            self.hideAlertMessage()
+            self.fetchDataFromDB()
+        case .cellular:
+            self.fetchDataFromDB()
+            self.hideAlertMessage()
+            print("cellular")
+        }
+    }
+    
+    func showAlertMessage(message:String)  {
+        DispatchQueue.main.async {
+            if let currentAlert = self.presentedViewController as? UIAlertController {
+                currentAlert.message = message
+                return
+            }
+            
+            self.alert.message = message
+            let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+            
+            self.alert.addAction(okAction)
+            
+            self.present(self.alert, animated: true, completion: nil)
+        }
+    }
+    
+    func hideAlertMessage()  {
+        
+        self.alert.dismiss(animated: true, completion: nil)
+    }
+}
