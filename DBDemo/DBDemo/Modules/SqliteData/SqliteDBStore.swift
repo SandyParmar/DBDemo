@@ -10,7 +10,22 @@ import Foundation
 import os.log
 import SQLite3
 
+protocol SqliteDBStoreDelegate {
+    func databaseResponseWithMessage(message:String)
+}
+
 class SqliteDBStore {
+    
+    public static var sharedInstance : SqliteDBStore {
+          get { return instance }
+      }
+      
+      static let instance : SqliteDBStore = SqliteDBStore()
+    
+    var delegateSqlite : SqliteDBStoreDelegate? = nil
+    
+    
+    
     // Get the URL to db store file
     let dbURL: URL
     // The database pointer.
@@ -22,18 +37,18 @@ class SqliteDBStore {
     var updateEntryStmt: OpaquePointer?
     var deleteEntryStmt: OpaquePointer?
     
-    let oslog = OSLog(subsystem: "Sandeep", category: "DBDemo")
-
+    
+    
     init() {
         do {
             do {
                 dbURL = try FileManager.default
                     .url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
                     .appendingPathComponent("DBDemo.db")
-                os_log("URL: %s", dbURL.absoluteString)
+                delegateSqlite?.databaseResponseWithMessage(message: "URL: \(dbURL.absoluteString)")
             } catch {
                 //TODO: Just logging the error and returning empty path URL here. Handle the error gracefully after logging
-                os_log("Some error occurred. Returning empty path.")
+                delegateSqlite?.databaseResponseWithMessage(message:"Some error occurred. Returning empty path.")
                 dbURL = URL(fileURLWithPath: "")
                 return
             }
@@ -42,7 +57,7 @@ class SqliteDBStore {
             try createTables()
             } catch {
                 //TODO: Handle the error gracefully after logging
-                os_log("Some error occurred. Returning.")
+                delegateSqlite?.databaseResponseWithMessage(message:"Some error occurred. Returning.")
                 return
             }
     }
@@ -51,7 +66,7 @@ class SqliteDBStore {
     // Open the DB at the given path. If file does not exists, it will create one for you
     func openDB() throws {
         if sqlite3_open(dbURL.path, &db) != SQLITE_OK { // error mostly because of corrupt database
-            os_log("error opening database at %s", log: oslog, type: .error, dbURL.absoluteString)
+            delegateSqlite?.databaseResponseWithMessage(message: "error opening database at \(dbURL.absoluteString)")
 //            deleteDB(dbURL: dbURL)
             throw SqliteError(message: "error opening database \(dbURL.absoluteString)")
         }
@@ -59,11 +74,11 @@ class SqliteDBStore {
     
     // Code to delete a db file. Useful to invoke in case of a corrupt DB and re-create another
     func deleteDB(dbURL: URL) {
-        os_log("removing db", log: oslog)
+        delegateSqlite?.databaseResponseWithMessage(message: "removing db")
         do {
             try FileManager.default.removeItem(at: dbURL)
         } catch {
-            os_log("exception while removing db %s", log: oslog, error.localizedDescription)
+            delegateSqlite?.databaseResponseWithMessage(message: "exception while removing db \(error.localizedDescription)")
         }
     }
     
@@ -82,7 +97,7 @@ class SqliteDBStore {
     
     func logDbErr(_ msg: String) {
         let errmsg = String(cString: sqlite3_errmsg(db)!)
-        os_log("ERROR %s : %s", log: oslog, type: .error, msg, errmsg)
+        delegateSqlite?.databaseResponseWithMessage(message: "ERROR %s : \(msg) \(errmsg)")
     }
 }
 

@@ -10,15 +10,50 @@ import UIKit
 
 class SqliteViewController: UIViewController {
     
+    @IBOutlet weak var textV: UITextView!
+    
+    let record = Record(name: "Sandeep", employeeId: "102345", designation: "iOS Developers")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let sqliteDbStore = SqliteDBStore()
-        let record = Record(name: "Sandeep", employeeId: "102345", designation: "iOS Developers")
-        sqliteDbStore.create(record: record)
-        //let r = try sqliteDbStore.read(employeeID: "ABC123")
+        SqliteDBStore.sharedInstance.delegateSqlite = self
+    }
+    
+    @IBAction func insertRecordDidPressed(_ sender: UIButton){
+        
+        SqliteDBStore.sharedInstance.create(record: record)
+    }
+    
+    @IBAction func updateRecordDidPressed(_ sender: UIButton){
         record.designation = "Sr iOS developer"
-        sqliteDbStore.update(record: record)
-        sqliteDbStore.delete(employeeId: record.employeeId)
-    }    
+        SqliteDBStore.sharedInstance.update(record: record)
+    }
+    
+    @IBAction func fetechRecordDidPressed(_ sender: UIButton){
+        
+        do{
+            let r = try SqliteDBStore.sharedInstance.read(employeeID: "102345")
+            
+            self.textV.text = "Name: \(r.name), EmpId: \(r.employeeId) Dest: \(r.designation)"
+        }
+        catch{
+            
+        }
+    }
+    
+    @IBAction func deleteRecordDidPressed(_ sender: UIButton){
+        SqliteDBStore.sharedInstance.delete(employeeId: record.employeeId)
+        
+    }
+}
+extension SqliteViewController : SqliteDBStoreDelegate{
+    func databaseResponseWithMessage(message: String) {
+        
+        DispatchQueue.main.async {
+            self.textV.text = message
+        }
+    }
+    
+    
 }

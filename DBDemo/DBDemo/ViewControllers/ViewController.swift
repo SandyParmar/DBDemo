@@ -17,10 +17,15 @@ class ViewController: UIViewController {
 
     @IBAction func coreDatabaseDidPressed(_ sender : UIButton){
         
+        let obj = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(identifier: "CoreDatabaseVCViewController")as! CoreDatabaseVCViewController
+        
+        self.navigationController?.pushViewController(obj, animated: true)
     }
     
     @IBAction func sqliteDatabaseDidPressed(_ sender : UIButton){
+        let obj = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(identifier: "SqliteViewController")as! SqliteViewController
         
+        self.navigationController?.pushViewController(obj, animated: true)
     }
 
 }

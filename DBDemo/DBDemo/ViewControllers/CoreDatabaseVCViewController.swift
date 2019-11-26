@@ -39,6 +39,8 @@ class CoreDatabaseVCViewController: UIViewController ,UICollectionViewDelegate,U
         let objUpdate = self.dataSource.data.value[indexPath.row]
         
         self.updateRecordDB(objImage: objUpdate)
+        
+        self.collectionView.reloadData()
     }
     
     func updateRecordDB(objImage:ImageGallery)  {

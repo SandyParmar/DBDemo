@@ -66,13 +66,84 @@
                     <view key="view" contentMode="scaleToFill" id="hrR-BO-kQJ">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JOE-7a-bKU">
+                                <rect key="frame" x="181.5" y="151" width="51" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="F0z-iy-eKA"/>
+                                </constraints>
+                                <state key="normal" title="Update"/>
+                                <connections>
+                                    <action selector="sqliteDatabaseDidPressed:" destination="cPJ-bM-uCU" eventType="touchUpInside" id="mmz-5z-sGK"/>
+                                    <action selector="updateRecordDidPressed:" destination="wP3-sJ-H7W" eventType="touchUpInside" id="gQo-wh-MH2"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YAc-sW-Yie">
+                                <rect key="frame" x="184.5" y="257" width="45" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="Zzh-lj-h8h"/>
+                                </constraints>
+                                <state key="normal" title="Delete"/>
+                                <connections>
+                                    <action selector="coreDatabaseDidPressed:" destination="cPJ-bM-uCU" eventType="touchUpInside" id="Rwl-Go-cuA"/>
+                                    <action selector="deleteRecordDidPressed:" destination="wP3-sJ-H7W" eventType="touchUpInside" id="TMd-uG-bei"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e8n-M6-sh4">
+                                <rect key="frame" x="183.5" y="201" width="47" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="5Aq-BD-gQp"/>
+                                </constraints>
+                                <state key="normal" title="Fetech"/>
+                                <connections>
+                                    <action selector="fetechRecordDidPressed:" destination="wP3-sJ-H7W" eventType="touchUpInside" id="Auf-SU-ZUg"/>
+                                    <action selector="sqliteDatabaseDidPressed:" destination="cPJ-bM-uCU" eventType="touchUpInside" id="ewe-hY-CQl"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="brM-Op-JKr">
+                                <rect key="frame" x="187" y="93" width="40" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="okk-tD-h3o"/>
+                                </constraints>
+                                <state key="normal" title="Insert"/>
+                                <connections>
+                                    <action selector="coreDatabaseDidPressed:" destination="cPJ-bM-uCU" eventType="touchUpInside" id="pzi-pm-QbT"/>
+                                    <action selector="insertRecordDidPressed:" destination="wP3-sJ-H7W" eventType="touchUpInside" id="n8g-RD-vCd"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Owr-fv-jFK">
+                                <rect key="frame" x="20" y="303" width="374" height="550"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <color key="textColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="rFJ-1A-71Y" firstAttribute="bottom" secondItem="Owr-fv-jFK" secondAttribute="bottom" constant="9" id="0ku-Ze-6YA"/>
+                            <constraint firstItem="YAc-sW-Yie" firstAttribute="centerX" secondItem="hrR-BO-kQJ" secondAttribute="centerX" id="CFc-6H-IW6"/>
+                            <constraint firstItem="Owr-fv-jFK" firstAttribute="leading" secondItem="rFJ-1A-71Y" secondAttribute="leading" constant="20" id="IrL-eH-PFg"/>
+                            <constraint firstItem="e8n-M6-sh4" firstAttribute="top" secondItem="JOE-7a-bKU" secondAttribute="bottom" constant="20" id="RbP-WH-N2B"/>
+                            <constraint firstItem="JOE-7a-bKU" firstAttribute="top" secondItem="brM-Op-JKr" secondAttribute="bottom" constant="28" id="W7n-1l-faf"/>
+                            <constraint firstItem="brM-Op-JKr" firstAttribute="top" secondItem="rFJ-1A-71Y" secondAttribute="top" constant="49" id="b5E-KT-FsQ"/>
+                            <constraint firstItem="rFJ-1A-71Y" firstAttribute="trailing" secondItem="Owr-fv-jFK" secondAttribute="trailing" constant="20" id="d1a-c9-2CS"/>
+                            <constraint firstItem="JOE-7a-bKU" firstAttribute="centerX" secondItem="hrR-BO-kQJ" secondAttribute="centerX" id="peM-XG-XM0"/>
+                            <constraint firstItem="e8n-M6-sh4" firstAttribute="centerX" secondItem="hrR-BO-kQJ" secondAttribute="centerX" id="r0S-nx-t3W"/>
+                            <constraint firstItem="YAc-sW-Yie" firstAttribute="top" secondItem="e8n-M6-sh4" secondAttribute="bottom" constant="26" id="w2B-ur-C9O"/>
+                            <constraint firstItem="Owr-fv-jFK" firstAttribute="top" secondItem="YAc-sW-Yie" secondAttribute="bottom" constant="16" id="yuZ-qf-Bok"/>
+                            <constraint firstItem="brM-Op-JKr" firstAttribute="centerX" secondItem="hrR-BO-kQJ" secondAttribute="centerX" id="zVt-AK-QW5"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="rFJ-1A-71Y"/>
                     </view>
+                    <connections>
+                        <outlet property="textV" destination="Owr-fv-jFK" id="Br9-Os-I2j"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HKB-TU-HMc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2139" y="106"/>
+            <point key="canvasLocation" x="2137.68115942029" y="105.80357142857143"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="56u-fD-cIb">
